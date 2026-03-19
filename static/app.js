@@ -111,15 +111,123 @@ function revealAllRemaining() {
   while (revealIndex < currentCards.length) revealNextCard();
 }
 
+// ... arriba ya tienes:
+// const birthdateInput = $("#birthdate");
+// const birthtimeInput = $("#birthtime");
+
+// Helpers
+function clamp(n, min, max) {
+  return Math.min(Math.max(n, min), max);
+}
+
+function digitsOnly(s) {
+  return (s || "").replace(/\D/g, "");
+}
+
+/**
+ * Formatea DD/MM/AAAA:
+ * - auto inserta "/" después de DD y MM
+ * - limita DD a 01-31, MM a 01-12
+ * - AAAA: 4 dígitos (sin rango duro)
+ */
+function formatBirthdate(raw) {
+  const d = digitsOnly(raw).slice(0, 8); // ddmmyyyy
+  let dd = d.slice(0, 2);
+  let mm = d.slice(2, 4);
+  const yyyy = d.slice(4, 8);
+
+  if (dd.length === 2) {
+    const n = clamp(parseInt(dd, 10) || 0, 1, 31);
+    dd = String(n).padStart(2, "0");
+  }
+  if (mm.length === 2) {
+    const n = clamp(parseInt(mm, 10) || 0, 1, 12);
+    mm = String(n).padStart(2, "0");
+  }
+
+  let out = "";
+  if (dd.length) out += dd;
+  if (mm.length) out += (out.length >= 2 ? "/" : "") + mm;
+  if (yyyy.length) out += (out.length >= 5 ? "/" : out.length >= 4 ? "/" : "") + yyyy;
+
+  // Asegura el patrón visual cuando ya hay 2 o 4 dígitos
+  // (ej: "20" -> "20/", "2001" -> "20/01/")
+  if (d.length === 2) out = `${dd}/`;
+  if (d.length === 4) out = `${dd}/${mm}/`;
+
+  return out;
+}
+
+/**
+ * Formatea HH:MM (24h):
+ * - auto inserta ":" después de HH
+ * - limita HH a 00-23, MM a 00-59
+ */
+function formatBirthtime(raw) {
+  const d = digitsOnly(raw).slice(0, 4); // hhmm
+  let hh = d.slice(0, 2);
+  let mm = d.slice(2, 4);
+
+  if (hh.length === 2) {
+    const n = clamp(parseInt(hh, 10) || 0, 0, 23);
+    hh = String(n).padStart(2, "0");
+  }
+  if (mm.length === 2) {
+    const n = clamp(parseInt(mm, 10) || 0, 0, 59);
+    mm = String(n).padStart(2, "0");
+  }
+
+  let out = "";
+  if (hh.length) out += hh;
+  if (mm.length) out += (out.length >= 2 ? ":" : "") + mm;
+
+  if (d.length === 2) out = `${hh}:`; // "14" -> "14:"
+  return out;
+}
+
+// Mantiene el cursor “bien” al final (simple, suficiente para MVP móvil)
+function keepCursorAtEnd(el) {
+  const len = el.value.length;
+  el.setSelectionRange(len, len);
+}
+
+// Auto-formateo en tiempo real
+birthdateInput.addEventListener("input", () => {
+  const formatted = formatBirthdate(birthdateInput.value);
+  if (birthdateInput.value !== formatted) {
+    birthdateInput.value = formatted;
+    keepCursorAtEnd(birthdateInput);
+  }
+});
+
+birthtimeInput.addEventListener("input", () => {
+  const formatted = formatBirthtime(birthtimeInput.value);
+  if (birthtimeInput.value !== formatted) {
+    birthtimeInput.value = formatted;
+    keepCursorAtEnd(birthtimeInput);
+  }
+});
+
+// Validaciones (puedes dejar las que ya tenías, pero te las ajusto a los formatos finales)
 function isValidBirthdate(v) {
   if (!v) return true;
-  return /^\d{2}\/\d{2}\/\d{4}$/.test(v.trim());
+  const s = v.trim();
+  if (!/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return false;
+  const [dd, mm, yyyy] = s.split("/").map(Number);
+  if (mm < 1 || mm > 12) return false;
+  if (dd < 1 || dd > 31) return false;
+  if (yyyy < 1000 || yyyy > 9999) return false;
+  return true;
 }
 
 function isValidBirthtime(v) {
   if (!v) return true;
-  // HH:MM 24h simple
-  return /^([01]\d|2[0-3]):[0-5]\d$/.test(v.trim());
+  const s = v.trim();
+  if (!/^\d{2}:\d{2}$/.test(s)) return false;
+  const [hh, mm] = s.split(":").map(Number);
+  if (hh < 0 || hh > 23) return false;
+  if (mm < 0 || mm > 59) return false;
+  return true;
 }
 
 async function startDraw() {
