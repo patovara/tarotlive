@@ -1,0 +1,155 @@
+:root {
+  --bg: #0b0b10;
+  --panel: #12121a;
+  --text: #f2f2f7;
+  --muted: #a6a6b3;
+  --accent: #7c5cff;
+  --danger: #ff4d6d;
+  --cardMaxW: 58vw;
+  --cardMaxH: 35vh;
+  --radius: 14px;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue", Helvetica, sans-serif;
+  background: radial-gradient(1200px 1200px at 50% -200px, rgba(124, 92, 255, 0.25), transparent 60%),
+              radial-gradient(1200px 1200px at 50% 120%, rgba(255, 77, 109, 0.18), transparent 55%),
+              var(--bg);
+  color: var(--text);
+}
+
+.app {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 14px 14px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.top h1 {
+  margin: 10px 0 6px;
+  font-size: 24px;
+  letter-spacing: 0.3px;
+}
+.hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.controls {
+  background: rgba(18, 18, 26, 0.82);
+  border: 1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius);
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.field label {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.field input, .field select {
+  width: 100%;
+  padding: 12px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  outline: none;
+}
+.field input:focus, .field select:focus {
+  border-color: rgba(124, 92, 255, 0.65);
+  box-shadow: 0 0 0 3px rgba(124, 92, 255, 0.18);
+}
+
+.primary {
+  padding: 12px 14px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(124, 92, 255, 0.95), rgba(255, 77, 109, 0.85));
+  color: white;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+}
+.primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.status {
+  min-height: 18px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.stage {
+  background: rgba(18, 18, 26, 0.55);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius);
+  padding: 14px 10px;
+}
+
+.cards {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Carta con fade-in */
+.card {
+  width: min(var(--cardMaxW), 420px);
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  opacity: 0;
+  transform: translateY(6px);
+  animation: fadeIn 260ms ease-out forwards;
+}
+.card img {
+  width: 80%;
+  max-height: var(--cardMaxH);
+  object-fit: contain;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.25);
+}
+.card .name {
+  font-size: 18px;
+  font-weight: 800;
+  text-align: center;
+  letter-spacing: 0.3px;
+}
+
+.reading {
+  background: rgba(18, 18, 26, 0.55);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius);
+  padding: 14px 12px;
+}
+
+.interpretation {
+  font-size: 18px;
+  line-height: 1.25;
+  font-weight: 700;
+  white-space: pre-wrap;
+}
+
+.error {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; transform: translateY(0); }
+}

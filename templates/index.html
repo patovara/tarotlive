@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tarot Live (Local)</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="top">
+        <h1>Tarot Live</h1>
+        <p class="hint">ENTER: tirar • ←: revelar todo • SPACE: reset</p>
+      </header>
+
+      <section class="controls" aria-label="Controles">
+        <div class="field">
+          <label for="name">Nombre (obligatorio)</label>
+          <input id="name" type="text" placeholder="Ej: @usuario" autocomplete="off" />
+        </div>
+
+        <div class="field">
+          <label for="question">Pregunta / contexto (opcional)</label>
+          <input id="question" type="text" placeholder="Ej: Amor, trabajo, decisión..." autocomplete="off" />
+        </div>
+
+        <div class="field">
+          <label for="spread">Tipo de tirada</label>
+          <select id="spread">
+            <option value="1">1 carta</option>
+            <option value="3" selected>3 cartas</option>
+            <option value="5">5 cartas</option>
+          </select>
+        </div>
+
+        <button id="drawBtn" class="primary">Tirar cartas</button>
+        <div id="status" class="status" role="status" aria-live="polite"></div>
+      </section>
+
+      <section class="stage" aria-label="Cartas">
+        <div id="cards" class="cards"></div>
+      </section>
+
+      <section class="reading" aria-label="Interpretación">
+        <div id="interpretation" class="interpretation"></div>
+      </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
