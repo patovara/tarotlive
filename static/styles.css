@@ -5,8 +5,8 @@
   --muted: #a6a6b3;
   --accent: #7c5cff;
   --danger: #ff4d6d;
-  --cardMaxW: 58vw;
-  --cardMaxH: 35vh;
+  --cardMaxW: 78vw;
+  --cardMaxH: 55vh;
   --radius: 14px;
 }
 
@@ -86,6 +86,20 @@ body {
   cursor: not-allowed;
 }
 
+.secondary {
+  margin-top: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.hidden { display: none !important; }
+
 .status {
   min-height: 18px;
   color: var(--muted);
@@ -117,7 +131,7 @@ body {
   animation: fadeIn 260ms ease-out forwards;
 }
 .card img {
-  width: 80%;
+  width: 100%;
   max-height: var(--cardMaxH);
   object-fit: contain;
   border-radius: 12px;
@@ -139,7 +153,7 @@ body {
 }
 
 .interpretation {
-  font-size: 18px;
+  font-size: 22px;
   line-height: 1.25;
   font-weight: 700;
   white-space: pre-wrap;

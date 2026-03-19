@@ -1,9 +1,12 @@
 const $ = (sel) => document.querySelector(sel);
 
 const nameInput = $("#name");
+const birthdateInput = $("#birthdate");
+const birthtimeInput = $("#birthtime");
 const questionInput = $("#question");
 const spreadSelect = $("#spread");
 const drawBtn = $("#drawBtn");
+const resetBtn = $("#resetBtn");
 const statusEl = $("#status");
 const cardsEl = $("#cards");
 const interpretationEl = $("#interpretation");
@@ -29,8 +32,9 @@ function resetAll() {
   revealIndex = 0;
   currentCards = [];
 
-  // Reset UI
   nameInput.value = "";
+  birthdateInput.value = "";
+  birthtimeInput.value = "";
   questionInput.value = "";
   spreadSelect.value = "3";
 
@@ -38,12 +42,15 @@ function resetAll() {
   interpretationEl.textContent = "";
   setStatus("");
 
+  resetBtn.classList.add("hidden");
   drawBtn.disabled = false;
+
+  // Volver al inicio del formulario
+  nameInput.scrollIntoView({ behavior: "smooth", block: "start" });
   nameInput.focus();
 }
 
 function sanitizeDisplayName(filenameOrName) {
-  // display_name ya viene sin extensión desde backend, pero por si acaso:
   return String(filenameOrName).replace(/\.(jpg|jpeg|png|webp)$/i, "");
 }
 
@@ -71,12 +78,14 @@ async function fetchCards(count) {
   return data.cards;
 }
 
-async function fetchInterpretation(name, question, cards) {
+async function fetchInterpretation(name, birthdate, birthtime, question, cards) {
   const res = await fetch("/api/interpretation", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       name,
+      birthdate,
+      birthtime,
       question,
       cards: cards.map((c) => c.display_name),
     }),
@@ -99,15 +108,26 @@ function revealNextCard() {
 
 function revealAllRemaining() {
   clearTimers();
-  while (revealIndex < currentCards.length) {
-    revealNextCard();
-  }
+  while (revealIndex < currentCards.length) revealNextCard();
+}
+
+function isValidBirthdate(v) {
+  if (!v) return true;
+  return /^\d{2}\/\d{2}\/\d{4}$/.test(v.trim());
+}
+
+function isValidBirthtime(v) {
+  if (!v) return true;
+  // HH:MM 24h simple
+  return /^([01]\d|2[0-3]):[0-5]\d$/.test(v.trim());
 }
 
 async function startDraw() {
   if (isDrawing) return;
 
   const name = nameInput.value.trim();
+  const birthdate = birthdateInput.value.trim();
+  const birthtime = birthtimeInput.value.trim();
   const question = questionInput.value.trim();
   const count = Number(spreadSelect.value);
 
@@ -117,8 +137,21 @@ async function startDraw() {
     return;
   }
 
+  if (!isValidBirthdate(birthdate)) {
+    setStatus("Fecha inválida. Usa DD/MM/AAAA (ej: 07/11/1996).", true);
+    birthdateInput.focus();
+    return;
+  }
+
+  if (!isValidBirthtime(birthtime)) {
+    setStatus("Hora inválida. Usa HH:MM (ej: 14:30).", true);
+    birthtimeInput.focus();
+    return;
+  }
+
   isDrawing = true;
   drawBtn.disabled = true;
+  resetBtn.classList.add("hidden");
   setStatus("Barajando...");
   interpretationEl.textContent = "";
   cardsEl.innerHTML = "";
@@ -129,22 +162,29 @@ async function startDraw() {
     currentCards = await fetchCards(count);
 
     setStatus("Revelando cartas...");
-    // Reveal con delay de 1s entre cada carta
     for (let i = 0; i < currentCards.length; i++) {
       const timer = setTimeout(() => {
         revealNextCard();
         if (revealIndex >= currentCards.length) {
-          // cuando termina reveal, pedir interpretación
           (async () => {
             setStatus("Generando interpretación...");
             try {
-              const text = await fetchInterpretation(name, question, currentCards);
+              const text = await fetchInterpretation(
+                name,
+                birthdate,
+                birthtime,
+                question,
+                currentCards
+              );
               interpretationEl.textContent = text;
               setStatus("");
+              resetBtn.classList.remove("hidden");
               scrollToInterpretation();
             } catch (e) {
-              interpretationEl.textContent = "No se pudo generar la interpretación. Intenta de nuevo.";
+              interpretationEl.textContent =
+                "No se pudo generar la interpretación. Intenta de nuevo.";
               setStatus("", false);
+              resetBtn.classList.remove("hidden");
               scrollToInterpretation();
             } finally {
               isDrawing = false;
@@ -163,33 +203,34 @@ async function startDraw() {
   }
 }
 
-// Eventos UI
+// Botones
 drawBtn.addEventListener("click", startDraw);
+resetBtn.addEventListener("click", resetAll);
 
+// Teclado
 document.addEventListener("keydown", (e) => {
-  // Evitar que SPACE haga scroll si la página lo permite
-  if (e.code === "Space") e.preventDefault();
-
+  // ENTER: tirar, pero no si estás escribiendo dentro de inputs (para evitar tiros accidentales)
   if (e.code === "Enter") {
-    // ENTER: tirar
+    const tag = (document.activeElement && document.activeElement.tagName) || "";
+    const isTyping = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
+    if (isTyping) return;
+
     e.preventDefault();
     startDraw();
     return;
   }
 
-  if (e.code === "Space") {
-    // SPACE: reset total
-    resetAll();
-    return;
-  }
-
   if (e.code === "ArrowLeft") {
-    // ←: skip reveal (solo si está en reveal)
     if (isDrawing && currentCards.length > 0 && revealIndex < currentCards.length) {
       revealAllRemaining();
       setStatus("Generando interpretación...");
     }
     return;
+  }
+
+  // ESC como reset rápido (no afecta escritura)
+  if (e.code === "Escape") {
+    resetAll();
   }
 });
 

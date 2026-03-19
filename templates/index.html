@@ -10,13 +10,23 @@
     <main class="app">
       <header class="top">
         <h1>Tarot Live</h1>
-        <p class="hint">ENTER: tirar • ←: revelar todo • SPACE: reset</p>
+        <p class="hint">ENTER: tirar • ←: revelar todo • (Reset: botón al final)</p>
       </header>
 
       <section class="controls" aria-label="Controles">
         <div class="field">
           <label for="name">Nombre (obligatorio)</label>
           <input id="name" type="text" placeholder="Ej: @usuario" autocomplete="off" />
+        </div>
+
+        <div class="field">
+          <label for="birthdate">Fecha de nacimiento (opcional) — DD/MM/AAAA</label>
+          <input id="birthdate" type="text" inputmode="numeric" placeholder="Ej: 07/11/1996" autocomplete="off" />
+        </div>
+
+        <div class="field">
+          <label for="birthtime">Hora de nacimiento (opcional) — HH:MM</label>
+          <input id="birthtime" type="text" inputmode="numeric" placeholder="Ej: 14:30" autocomplete="off" />
         </div>
 
         <div class="field">
@@ -43,6 +53,9 @@
 
       <section class="reading" aria-label="Interpretación">
         <div id="interpretation" class="interpretation"></div>
+
+        <!-- Botón de reset (solo visible cuando hay lectura) -->
+        <button id="resetBtn" class="secondary hidden">Nueva tirada</button>
       </section>
     </main>
 
