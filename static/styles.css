@@ -153,10 +153,11 @@ body {
 }
 
 .interpretation {
-  font-size: 22px;
+  font-size: 20px;
   line-height: 1.25;
-  font-weight: 700;
-  white-space: pre-wrap;
+  font-weight: 500;
+  /* white-space: pre-wrap; */
+  text-wrap: balance;
 }
 
 .error {
